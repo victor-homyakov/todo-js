@@ -1,0 +1,27 @@
+{
+  "todo": [
+    {
+      "id": "1",
+      "name": "login page",
+      "type": "task"
+    }, {
+      "id": "4",
+      "name": "main page",
+      "type": "task"
+    }
+  ],
+  "inprogress": [
+    {
+      "id": "8",
+      "name": "js error on setting page",
+      "type": "bug"
+    }
+  ],
+  "done": [
+    {
+      "id": "9",
+      "name": "install package",
+      "type": "task"
+    }
+  ]
+}

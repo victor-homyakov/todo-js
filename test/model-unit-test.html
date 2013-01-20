@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Model unit test</title>
+  <link type="text/css" rel="stylesheet" href="test.css" />
+  <script type="text/javascript" src="../lib/proto-scripty.js"></script>
+  <script type="text/javascript" src="../lib/unittest.js"></script>
+  <script type="text/javascript" src="../js/todo-model.js"></script>
+</head>
+<body>
+  <!--
+  <div id="testlog"></div>
+  <br/>
+  -->
+  <!-- Tests -->
+  <script type="text/javascript">
+    new Test.Unit.Runner({
+      setup: function() {
+      },
+      teardown: function() {
+      },
+
+      testHierarchy: function() {
+        this.assertInstanceOf(Object, TicketModel);
+        var ticket = new TicketModel();
+        this.assertInstanceOf(TicketModel, ticket);
+      },
+
+      testConstructor: function() {
+        var ticket = new TicketModel("#78", "ticket name");
+        this.assertEqual("#78", ticket.id);
+        this.assertEqual("ticket name", ticket.name);
+        this.assertEqual("task", ticket.type);
+
+        ticket = new TicketModel("#79", "new task", "task");
+        this.assertInstanceOf(TicketModel, ticket);
+        this.assertEqual("#79", ticket.id);
+        this.assertEqual("new task", ticket.name);
+        this.assertEqual("task", ticket.type);
+
+        ticket = new TicketModel("#80", "new bug", "bug");
+        this.assertInstanceOf(TicketModel, ticket);
+        this.assertEqual("#80", ticket.id);
+        this.assertEqual("new bug", ticket.name);
+        this.assertEqual("bug", ticket.type);
+
+        ticket = new TicketModel("#81", "something", "wrong ticket type");
+        this.assertInstanceOf(TicketModel, ticket);
+        this.assertEqual("#81", ticket.id);
+        this.assertEqual("something", ticket.name);
+        this.assertEqual("task", ticket.type);
+      },
+
+      testToHTML: function() {
+        var ticket = new TicketModel("#78", "ticket name");
+        this.assertFunction(ticket.toHTML);
+        this.assertEqual('<div class="task"><span>#78</span><span>ticket name</span></div>', ticket.toHTML());
+      }
+    });
+  </script>
+</body>
+</html>
