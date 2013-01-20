@@ -1,0 +1,47 @@
+html, body {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.task, .bug {
+  border: 2px solid #444;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin: 5px 0;
+  /*min-width: 100px;*/
+  padding: 5px;
+  width: 100%;
+}
+
+.task {
+  background-color: #cee2f2;
+}
+
+.bug {
+  background-color: #f4cac8;
+}
+
+#TicketsTable {
+  border: none;
+  margin: 0;
+  padding: 0;
+  table-layout: fixed;
+  width: 100%;
+}
+
+#TicketsTable th {
+  border-left: 2px dotted #444;
+  border-bottom: 2px dotted #444;
+  width: 30%;
+}
+
+#TicketsTable td {
+  border-left: 2px dotted #444;
+  padding: 0 5px;
+  vertical-align: top;
+}
+
+#TicketsTable th:first-child, #TicketsTable td:first-child {
+  border-left: 0;
+}
