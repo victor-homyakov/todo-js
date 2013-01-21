@@ -31,17 +31,25 @@ html, body {
 }
 
 #TicketsTable th {
-  border-left: 2px dotted #444;
-  border-bottom: 2px dotted #444;
+  background-color: transparent;
+  border-color: #444;
+  border-style: dotted;
+  border-width: 0 0 2px 2px;
   width: 30%;
 }
 
 #TicketsTable td {
-  border-left: 2px dotted #444;
+  border-color: #444;
+  border-style: dotted;
+  border-width: 0 0 0 2px;
   padding: 0 5px;
   vertical-align: top;
 }
 
 #TicketsTable th:first-child, #TicketsTable td:first-child {
   border-left: 0;
+}
+
+.loading {
+  background: url("../img/spinner-small-2.gif") no-repeat right top;
 }

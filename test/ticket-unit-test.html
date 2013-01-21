@@ -22,40 +22,37 @@
       },
 
       testHierarchy: function() {
-        this.assertInstanceOf(Object, TicketModel);
-        var ticket = new TicketModel();
-        this.assertInstanceOf(TicketModel, ticket);
+        this.assertInstanceOf(Object, Ticket);
+        var ticket = new Ticket();
+        this.assertInstanceOf(Ticket, ticket);
       },
 
       testConstructor: function() {
-        var ticket = new TicketModel("#78", "ticket name");
+        var ticket = new Ticket("#78", "ticket name");
         this.assertEqual("#78", ticket.id);
         this.assertEqual("ticket name", ticket.name);
         this.assertEqual("task", ticket.type);
 
-        ticket = new TicketModel("#79", "new task", "task");
-        this.assertInstanceOf(TicketModel, ticket);
+        ticket = new Ticket("#79", "new task", "task");
         this.assertEqual("#79", ticket.id);
         this.assertEqual("new task", ticket.name);
         this.assertEqual("task", ticket.type);
 
-        ticket = new TicketModel("#80", "new bug", "bug");
-        this.assertInstanceOf(TicketModel, ticket);
+        ticket = new Ticket("#80", "new bug", "bug");
         this.assertEqual("#80", ticket.id);
         this.assertEqual("new bug", ticket.name);
         this.assertEqual("bug", ticket.type);
 
-        ticket = new TicketModel("#81", "something", "wrong ticket type");
-        this.assertInstanceOf(TicketModel, ticket);
+        ticket = new Ticket("#81", "something", "wrong ticket type");
         this.assertEqual("#81", ticket.id);
         this.assertEqual("something", ticket.name);
         this.assertEqual("task", ticket.type);
       },
 
       testToHTML: function() {
-        var ticket = new TicketModel("#78", "ticket name");
+        var ticket = new Ticket("#78", "ticket name");
         this.assertFunction(ticket.toHTML);
-        this.assertEqual('<div class="task"><span>#78</span><span>ticket name</span></div>', ticket.toHTML());
+        this.assertEqual('<div class="task"><span>#78</span> <span>ticket name</span></div>', ticket.toHTML());
       }
     });
   </script>

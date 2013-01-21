@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Model unit test</title>
+  <link rel="stylesheet" href="../css/todo.css" type="text/css" />
+  <link type="text/css" rel="stylesheet" href="test.css" />
+  <script type="text/javascript" src="../lib/proto-scripty.js"></script>
+  <script type="text/javascript" src="../lib/unittest.js"></script>
+  <script type="text/javascript" src="../js/todo-model.js"></script>
+</head>
+<body>
+  <!-- Log output -->
+  <div id="testlog"></div>
+  <br/>
+
+  <table id="TicketsTable">
+    <thead>
+      <tr>
+        <th>ToDo</th>
+        <th>In Progress</th>
+        <th>Done</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="todo"></td>
+        <td class="inprogress"></td>
+        <td class="done"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <script type="text/javascript">
+    var tickets;
+
+    new Test.Unit.Runner({
+      setup: function() {
+        tickets = new Tickets("TicketsTable");
+      },
+
+      teardown: function() {
+        tickets = null;
+      },
+
+      testHierarchy: function() {
+        this.assertInstanceOf(Object, Tickets);
+        this.assertInstanceOf(Tickets, tickets);
+      },
+
+      testFromJSON: function() {
+        this.assertFunction(tickets.fromJSON);
+        tickets.fromJSON({});
+        //this.assertUndefined(tickets.todo);
+        this.assertType(Array, tickets.todo);
+        this.assertType(Array, tickets.inprogress);
+        this.assertType(Array, tickets.done);
+      },
+
+      testLoad: function() {
+        this.assertFunction(tickets.load);
+        tickets.load("todo.json");
+        this.wait(1000, function() {
+          //this.assertEnumEqual([], tickets.todo);
+          this.assertType(Array, tickets.todo);
+          this.assertEqual(2, tickets.todo.length);
+          this.assertType(Array, tickets.inprogress);
+          this.assertEqual(1, tickets.inprogress.length);
+          this.assertType(Array, tickets.done);
+          this.assertEqual(1, tickets.done.length);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
