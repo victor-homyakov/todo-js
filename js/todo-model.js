@@ -46,6 +46,7 @@ Object.extend(Ticket, {
 var Tickets = Class.create({
   prebind: ["onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
 
+  states: ["todo", "inprogress", "done"],
   todo: [],
   inprogress: [],
   done: [],
@@ -60,32 +61,26 @@ var Tickets = Class.create({
   },
 
   observe: function() {
-    if ( typeof (new Element('div')).dragDrop === "function") {
+    if ( typeof (new Element("div")).dragDrop === "function") {
       document.on("selectstart", ".ticket", function(event, element) {
         // Allow to drag any element in IE, not only A and IMG
         event.stop();
         //console.log("selectstart", event, element);
         element.dragDrop();
-        //return false;
       });
     }
 
     this.onDragStart = this.onDragStart || document.on("dragstart", ".ticket", function(event, element) {
       //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
-      event.dataTransfer.setData("Text", Ticket.idFromElement(element));
+      event.dataTransfer.setData("Text", element.identify());
     });
 
     this.onDragOver = this.onDragOver || document.on("dragover", ".tickets", function(event, element) {
       //console.log("dragover", event, element);
       event.stop();
-      /*if (event.preventDefault) {
-      //console.log("dragover event.preventDefault()");
-      event.preventDefault();
-      }*/
       //element.addClassName("over");
       //event.dataTransfer.dropEffect = "copy";
-      //return false;
     });
 
     this.onDragEnter = this.onDragEnter || document.on("dragenter", ".tickets", function(event, element) {
@@ -93,12 +88,13 @@ var Tickets = Class.create({
       event.stop();
       event.dataTransfer.dropEffect = "copy";
       //element.addClassName("over");
-      //element.highlight();
-      if (!element.highlighter || element.highlighter.state === 'finished') {
-        element.highlighter = new Effect.Highlight(element);
-        //console.log("highlight", element);
-      }
-      //return false;
+      // TODO replace highlight with CSS3 transition
+      element.highlight({
+        queue: {
+          scope: "tickets-highlight " + element.className,
+          limit: 1
+        }
+      });
     });
 
     //this.onDragLeave = this.onDragLeave || document.on("dragleave", ".tickets", function(event, element) {
@@ -107,15 +103,13 @@ var Tickets = Class.create({
 
     this.onDrop = this.onDrop || document.on("drop", ".tickets", function(event, element) {
       event.stop();
-      /*if (event.stopPropagation) {
-       event.stopPropagation();
-       }*/
-      var data = event.dataTransfer.getData("Text");
-      console.log("drop", data, "to", element);
-      //el.parentNode.removeChild(el);
+      var id = event.dataTransfer.getData("Text");
+      var previousContainer = $(id).up(".tickets");
+      //console.log("drop", id, "from", previousContainer, "to", element);
+      this.changeState(id, previousContainer, element);
       //element.removeClassName("over");
-      //return false;
-    });
+    }.bind(this));
+    // FIXME use prebind
   },
 
   stopObserving: function() {
@@ -164,26 +158,68 @@ var Tickets = Class.create({
     // можно создавать новые полноценные объекты Ticket,
     // а можно просто сменить прототип, т.к. поля полностью совпадают
     //ticket.__proto__ = Ticket.prototype;
-    this.todo = json.todo.map(Ticket.fromJSON);
-    this.inprogress = json.inprogress.map(Ticket.fromJSON);
-    this.done = json.done.map(Ticket.fromJSON);
+    this.states.each(function(state) {
+      this[state] = json[state].map(Ticket.fromJSON);
+    }, this);
     this.render();
   },
 
-  appendTicket: function(stateContainer, ticket) {
+  changeState: function(element, fromContainer, toContainer) {
+    element = $(element);
+    var ticketId = Ticket.idFromElement(element);
+    var fromState = this.stateForContainer(fromContainer);
+    var toState = this.stateForContainer(toContainer);
+    if (fromState === toState) {
+      return;
+    }
+    var ticket;
+    for (var i = 0, len = this[fromState].length; i < len; ++i) {
+      if (this[fromState][i].id === ticketId) {
+        ticket = this[fromState].splice(i, 1)[0];
+        break;
+      }
+    }
+    /*var ticket = this[fromState].find(function(t) {
+     return t.id === ticketId;
+     });*/
+    console.log("changeState", ticketId, ticket, fromState, toState);
+    if (ticket) {
+      element.remove();
+      this[toState].push(ticket);
+      this.insertTicket(toContainer, ticket);
+    }
+    //this.render();
+  },
+
+  /**
+   * Insert new ticket into container.
+   */
+  insertTicket: function(stateContainer, ticket) {
     //console.log(ticket);
-    stateContainer.insert({
+    $(stateContainer).insert({
       bottom: ticket
     });
   },
 
+  containerForState: function(state) {
+    return $(this.containerId).down("." + state);
+  },
+
+  stateForContainer: function(stateContainer) {
+    stateContainer = $(stateContainer);
+    return this.states.find(function(state) {
+      return stateContainer.hasClassName(state);
+    });
+  },
+
+  /**
+   * Render all tickets.
+   */
   render: function() {
     var container = $(this.containerId);
-    ["todo", "inprogress", "done"].each(function(state) {
-      var stateContainer = container.down("." + state);
-      //console.log(state, stateContainer);
-      stateContainer.update();
-      this[state].each(this.appendTicket.curry(stateContainer), this);
+    this.states.each(function(state) {
+      var stateContainer = this.containerForState(state).update();
+      this[state].each(this.insertTicket.curry(stateContainer), this);
     }, this);
   }
 });
