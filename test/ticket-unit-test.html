@@ -52,7 +52,7 @@
       testToHTML: function() {
         var ticket = new Ticket("#78", "ticket name");
         this.assertFunction(ticket.toHTML);
-        this.assertEqual('<div class="task"><span>#78</span> <span>ticket name</span></div>', ticket.toHTML());
+        this.assertEqual('<div class="ticket task" draggable="true"><span>#78</span> <span>ticket name</span></div>', ticket.toHTML());
       }
     });
   </script>

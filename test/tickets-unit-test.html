@@ -24,9 +24,9 @@
     </thead>
     <tbody>
       <tr>
-        <td class="todo"></td>
-        <td class="inprogress"></td>
-        <td class="done"></td>
+        <td class="tickets todo"></td>
+        <td class="tickets inprogress"></td>
+        <td class="tickets done"></td>
       </tr>
     </tbody>
   </table>
@@ -36,11 +36,15 @@
 
     new Test.Unit.Runner({
       setup: function() {
+        if (tickets) {
+          tickets.stopObserving();
+        }
         tickets = new Tickets("TicketsTable");
       },
 
       teardown: function() {
-        tickets = null;
+        //tickets.stopObserving();
+        //tickets = null;
       },
 
       testHierarchy: function() {
@@ -48,10 +52,13 @@
         this.assertInstanceOf(Tickets, tickets);
       },
 
-      testFromJSON: function() {
-        this.assertFunction(tickets.fromJSON);
-        tickets.fromJSON({});
-        //this.assertUndefined(tickets.todo);
+      testLoadFromJSON: function() {
+        this.assertFunction(tickets.loadFromJSON);
+        tickets.loadFromJSON({
+          "todo": [],
+          "inprogress": [],
+          "done": []
+        });
         this.assertType(Array, tickets.todo);
         this.assertType(Array, tickets.inprogress);
         this.assertType(Array, tickets.done);
@@ -61,7 +68,6 @@
         this.assertFunction(tickets.load);
         tickets.load("todo.json");
         this.wait(1000, function() {
-          //this.assertEnumEqual([], tickets.todo);
           this.assertType(Array, tickets.todo);
           this.assertEqual(2, tickets.todo.length);
           this.assertType(Array, tickets.inprogress);
