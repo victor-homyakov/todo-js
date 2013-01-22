@@ -2,7 +2,7 @@
  * Карточка задачи.
  */
 var Ticket = Class.create({
-  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}</span> <span>#{name}</span></div>'),
+  template: new Template('<div class="ticket #{type}" draggable="true"><span class="id">#{id}</span> <span>#{name}</span></div>'),
 
   /*initialize: function(json) {
    this.id = json.id;
@@ -25,9 +25,15 @@ var Ticket = Class.create({
   }
 });
 
-Ticket.fromJSON = function(json) {
-  return new Ticket(json.id, json.name, json.type);
-};
+Object.extend(Ticket, {
+  fromJSON: function(json) {
+    return new Ticket(json.id, json.name, json.type);
+  },
+  idFromElement: function(element) {
+    element = $(element).down(".id");
+    return element.innerText || element.textContent;
+  }
+});
 
 /**
  * Возможны две реализации:
@@ -54,18 +60,20 @@ var Tickets = Class.create({
   },
 
   observe: function() {
-    //$(container).bind('selectstart', function(){this.dragDrop(); return false;});
-    document.on("selectstart", ".ticket", function(event, element) {
-      event.stop();
-      //console.log("selectstart", event, element);
-      element.dragDrop();
-      //return false;
-    });
+    if ( typeof (new Element('div')).dragDrop === "function") {
+      document.on("selectstart", ".ticket", function(event, element) {
+        // Allow to drag any element in IE, not only A and IMG
+        event.stop();
+        //console.log("selectstart", event, element);
+        element.dragDrop();
+        //return false;
+      });
+    }
 
     this.onDragStart = this.onDragStart || document.on("dragstart", ".ticket", function(event, element) {
       //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
-      event.dataTransfer.setData("Text", element.innerText || element.textContent);
+      event.dataTransfer.setData("Text", Ticket.idFromElement(element));
     });
 
     this.onDragOver = this.onDragOver || document.on("dragover", ".tickets", function(event, element) {
@@ -73,7 +81,6 @@ var Tickets = Class.create({
       event.stop();
       /*if (event.preventDefault) {
       //console.log("dragover event.preventDefault()");
-      // allows us to drop
       event.preventDefault();
       }*/
       //element.addClassName("over");
@@ -82,9 +89,15 @@ var Tickets = Class.create({
     });
 
     this.onDragEnter = this.onDragEnter || document.on("dragenter", ".tickets", function(event, element) {
+      //console.log("dragenter", event, element);
       event.stop();
       event.dataTransfer.dropEffect = "copy";
       //element.addClassName("over");
+      //element.highlight();
+      if (!element.highlighter || element.highlighter.state === 'finished') {
+        element.highlighter = new Effect.Highlight(element);
+        //console.log("highlight", element);
+      }
       //return false;
     });
 

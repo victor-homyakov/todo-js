@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tickets - functional test</title>
+  <link rel="stylesheet" href="../css/todo.css" type="text/css" />
+  <script type="text/javascript" src="../lib/proto-scripty.js"></script>
+  <script type="text/javascript" src="../js/todo-model.js"></script>
+  <script type="text/javascript">
+    var tickets = new Tickets("TicketsTable");
+  </script>
+</head>
+<body>
+  <button onclick="tickets.load('todo.json');">
+    Load from JSON
+  </button>
+  <table id="TicketsTable">
+    <thead>
+      <tr>
+        <th>ToDo</th>
+        <th>In Progress</th>
+        <th>Done</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tickets todo"></td>
+        <td class="tickets inprogress"></td>
+        <td class="tickets done"></td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

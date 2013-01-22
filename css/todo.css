@@ -43,7 +43,8 @@ html, body {
   border-color: #444;
   border-style: dotted;
   border-width: 0 0 0 2px;
-  padding: 0 5px;
+  /* внизу пустое место, чтобы было, куда перетащить ticket */
+  padding: 0 5px 5em;
   vertical-align: top;
 }
 
