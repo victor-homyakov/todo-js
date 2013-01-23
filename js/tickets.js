@@ -1,6 +1,5 @@
 // TODO редактировать - contenteditable
 // TODO удалять
-// TODO загрузка из LocalStorage
 // TODO feature-test HTML5 d&d
 
 /**
@@ -113,6 +112,23 @@ var Tickets = Class.create({
       //element.removeClassName("over");
     }.bind(this));
     // FIXME use prebind
+
+    // http://stackoverflow.com/questions/6399131/html5-draggable-and-contenteditable-not-working-together/
+    // onfocus="this.parentNode.draggable = false;"
+    // onblur="this.parentNode.draggable = true;"
+
+    /*
+    document.on("focusin", "[contenteditable]", function(event, element) {
+      console.log("focusin", element);
+      //document.designMode = "on";
+    });
+
+    document.on("focusout", "[contenteditable]", function(event, element) {
+      console.log("focusout", element);
+      // TODO save
+      //document.designMode = "off";
+    });
+    */
   },
 
   stopObserving: function() {

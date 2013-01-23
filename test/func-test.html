@@ -14,6 +14,7 @@
   <input type="button" value="Load from file" onclick="tickets.loadFromFile('tickets.json');" />
   <input type="button" value="Load from local storage" onclick="tickets.loadFromLocalStorage();" />
   <input type="button" value="Save to local storage" onclick="tickets.saveToLocalStorage();" />
+  <input type="button" value="Clear local storage" onclick="localStorage.clear(); window.location = window.location;" />
 
   <form id="NewTicket">
     <fieldset>
@@ -47,5 +48,13 @@
       </tr>
     </tbody>
   </table>
+
+  <div draggable="true">
+    <span contenteditable="true">span contenteditable</span>
+  </div>
+  <div contenteditable="true">
+    div contenteditable
+  </div>
+
 </body>
 </html>
