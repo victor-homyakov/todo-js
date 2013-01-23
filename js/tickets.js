@@ -1,8 +1,7 @@
 // TODO редактировать - contenteditable
 // TODO удалять
-// TODO сохранения LocalStorage
+// TODO загрузка из LocalStorage
 // TODO feature-test HTML5 d&d
-// TODO feature-test localStorage
 
 /**
  * Карточка задачи.
@@ -31,8 +30,13 @@ var Ticket = Class.create({
 
 Object.extend(Ticket, {
   STORAGE_KEY: "ticket",
+
   fromJSON: function(json) {
     return new Ticket(json.id, json.name, json.type);
+  },
+
+  fromElement: function(element) {
+    return $(element).retrieve(Ticket.STORAGE_KEY);
   }
 });
 
@@ -46,6 +50,7 @@ var Tickets = Class.create({
 
   initialize: function(containerId) {
     this.containerId = containerId;
+    this.storageKey = "tickets-" + containerId;
     if (document.loaded) {
       this.observe();
     } else {
@@ -153,6 +158,7 @@ var Tickets = Class.create({
       //json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
       json[state].each(this.createTicket.curry(stateContainer));
     }, this);
+    this.saveToLocalStorage();
   },
 
   changeState: function(element, fromContainer, toContainer) {
@@ -165,6 +171,7 @@ var Tickets = Class.create({
     console.log("changeState", element, fromContainer, toContainer);
     //element.remove();
     toContainer.insert(element);
+    this.saveToLocalStorage();
   },
 
   containerForState: function(state) {
@@ -192,5 +199,16 @@ var Tickets = Class.create({
     console.log("createTicketFromForm", data);
     this.createTicket(this.containerForState("todo"), data);
     form.reset();
+    this.saveToLocalStorage();
+  },
+
+  saveToLocalStorage: function() {
+    // TODO feature-test localStorage
+    var data = {};
+    this.states.each(function(state) {
+      data[state] = this.containerForState(state).select(".ticket").map(Ticket.fromElement);
+    }, this);
+    //console.log(Object.toJSON(data));
+    localStorage.setItem(this.storageKey, Object.toJSON(data));
   }
 });
