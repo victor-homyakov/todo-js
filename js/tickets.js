@@ -1,14 +1,12 @@
+// TODO contenteditable
+// TODO feature-test HTML5 d&d
+// TODO feature-test localStorage
+
 /**
  * Карточка задачи.
  */
 var Ticket = Class.create({
-  template: new Template('<div class="ticket #{type}" draggable="true"><span class="id">#{id}</span> <span>#{name}</span></div>'),
-
-  /*initialize: function(json) {
-   this.id = json.id;
-   this.name = json.name;
-   this.type = (json.type == "bug") ? "bug" : "task";
-   },*/
+  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}</span> <span>#{name}</span></div>'),
 
   initialize: function(id, name, type) {
     this.id = id;
@@ -20,18 +18,19 @@ var Ticket = Class.create({
    return "Ticket #{id} (#{type}): #{name}".interpolate(this);
    },*/
 
+  toElement: function() {
+    return new Element("div").update(this.toHTML()).down().store(Ticket.STORAGE_KEY, this);
+  },
+
   toHTML: function() {
     return this.template.evaluate(this);
   }
 });
 
 Object.extend(Ticket, {
+  STORAGE_KEY: "ticket",
   fromJSON: function(json) {
     return new Ticket(json.id, json.name, json.type);
-  },
-  idFromElement: function(element) {
-    element = $(element).down(".id");
-    return element.innerText || element.textContent;
   }
 });
 
@@ -47,9 +46,9 @@ var Tickets = Class.create({
   prebind: ["onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
 
   states: ["todo", "inprogress", "done"],
-  todo: [],
-  inprogress: [],
-  done: [],
+  /*todo: [],
+   inprogress: [],
+   done: [],*/
 
   initialize: function(containerId) {
     this.containerId = containerId;
@@ -62,8 +61,8 @@ var Tickets = Class.create({
 
   observe: function() {
     if ( typeof (new Element("div")).dragDrop === "function") {
+      // Allow to drag any element in IE, not only A and IMG
       document.on("selectstart", ".ticket", function(event, element) {
-        // Allow to drag any element in IE, not only A and IMG
         event.stop();
         //console.log("selectstart", event, element);
         element.dragDrop();
@@ -121,12 +120,12 @@ var Tickets = Class.create({
   },
 
   /**
-   * Загрузка из JSON.
+   * Загрузка из файла JSON.
    *
    * @param {String} name
    * @param {Object} options
    */
-  load: function(name, options) {
+  loadFromFile: function(name, options) {
     options = Object.extend({
       method: "get",
       onCreate: this.onLoadCreate,
@@ -155,50 +154,22 @@ var Tickets = Class.create({
   },
 
   loadFromJSON: function(json) {
-    // можно создавать новые полноценные объекты Ticket,
-    // а можно просто сменить прототип, т.к. поля полностью совпадают
-    //ticket.__proto__ = Ticket.prototype;
     this.states.each(function(state) {
-      this[state] = json[state].map(Ticket.fromJSON);
+      var stateContainer = this.containerForState(state).update();
+      json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
     }, this);
-    this.render();
   },
 
   changeState: function(element, fromContainer, toContainer) {
     element = $(element);
-    var ticketId = Ticket.idFromElement(element);
-    var fromState = this.stateForContainer(fromContainer);
-    var toState = this.stateForContainer(toContainer);
-    if (fromState === toState) {
+    fromContainer = $(fromContainer);
+    toContainer = $(toContainer);
+    if (fromContainer === toContainer) {
       return;
     }
-    var ticket;
-    for (var i = 0, len = this[fromState].length; i < len; ++i) {
-      if (this[fromState][i].id === ticketId) {
-        ticket = this[fromState].splice(i, 1)[0];
-        break;
-      }
-    }
-    /*var ticket = this[fromState].find(function(t) {
-     return t.id === ticketId;
-     });*/
-    console.log("changeState", ticketId, ticket, fromState, toState);
-    if (ticket) {
-      element.remove();
-      this[toState].push(ticket);
-      this.insertTicket(toContainer, ticket);
-    }
-    //this.render();
-  },
-
-  /**
-   * Insert new ticket into container.
-   */
-  insertTicket: function(stateContainer, ticket) {
-    //console.log(ticket);
-    $(stateContainer).insert({
-      bottom: ticket
-    });
+    console.log("changeState", element, fromContainer, toContainer);
+    //element.remove();
+    toContainer.insert(element);
   },
 
   containerForState: function(state) {
@@ -210,16 +181,5 @@ var Tickets = Class.create({
     return this.states.find(function(state) {
       return stateContainer.hasClassName(state);
     });
-  },
-
-  /**
-   * Render all tickets.
-   */
-  render: function() {
-    var container = $(this.containerId);
-    this.states.each(function(state) {
-      var stateContainer = this.containerForState(state).update();
-      this[state].each(this.insertTicket.curry(stateContainer), this);
-    }, this);
   }
 });

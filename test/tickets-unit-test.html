@@ -3,11 +3,11 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Tickets - unit test</title>
-  <link rel="stylesheet" href="../css/todo.css" type="text/css" />
+  <link rel="stylesheet" href="../css/tickets.css" type="text/css" />
   <link type="text/css" rel="stylesheet" href="test.css" />
   <script type="text/javascript" src="../lib/proto-scripty.js"></script>
   <script type="text/javascript" src="../lib/unittest.js"></script>
-  <script type="text/javascript" src="../js/todo-model.js"></script>
+  <script type="text/javascript" src="../js/tickets.js"></script>
 </head>
 <body>
   <!-- Log output -->
@@ -52,28 +52,42 @@
         this.assertInstanceOf(Tickets, tickets);
       },
 
-      testLoadFromJSON: function() {
+      testLoadFromEmptyJSON: function() {
         this.assertFunction(tickets.loadFromJSON);
         tickets.loadFromJSON({
           "todo": [],
           "inprogress": [],
           "done": []
         });
-        this.assertType(Array, tickets.todo);
-        this.assertType(Array, tickets.inprogress);
-        this.assertType(Array, tickets.done);
+        this.assertEqual(0, $$(".todo .ticket").length);
+        this.assertEqual(0, $$(".inprogress .ticket").length);
+        this.assertEqual(0, $$(".done .ticket").length);
       },
 
-      testLoad: function() {
-        this.assertFunction(tickets.load);
-        tickets.load("todo.json");
+      testLoadFromJSON: function() {
+        tickets.loadFromJSON({
+          "todo": [{
+            "id": "1"
+          }],
+          "inprogress": [{
+            "id": "2"
+          }],
+          "done": [{
+            "id": "3"
+          }]
+        });
+        this.assertEqual(1, $$(".todo .ticket").length);
+        this.assertEqual(1, $$(".inprogress .ticket").length);
+        this.assertEqual(1, $$(".done .ticket").length);
+      },
+
+      testLoadFromFile: function() {
+        this.assertFunction(tickets.loadFromFile);
+        tickets.loadFromFile("tickets.json");
         this.wait(1000, function() {
-          this.assertType(Array, tickets.todo);
-          this.assertEqual(2, tickets.todo.length);
-          this.assertType(Array, tickets.inprogress);
-          this.assertEqual(1, tickets.inprogress.length);
-          this.assertType(Array, tickets.done);
-          this.assertEqual(1, tickets.done.length);
+          this.assertEqual(2, $$(".todo .ticket").length);
+          this.assertEqual(1, $$(".inprogress .ticket").length);
+          this.assertEqual(1, $$(".done .ticket").length);
         });
       }
     });

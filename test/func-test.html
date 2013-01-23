@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <title>Tickets - functional test</title>
-  <link rel="stylesheet" href="../css/todo.css" type="text/css" />
+  <link rel="stylesheet" href="../css/tickets.css" type="text/css" />
   <script type="text/javascript" src="../lib/proto-scripty.js"></script>
-  <script type="text/javascript" src="../js/todo-model.js"></script>
+  <script type="text/javascript" src="../js/tickets.js"></script>
   <script type="text/javascript">
     var tickets = new Tickets("TicketsTable");
   </script>
 </head>
 <body>
-  <button onclick="tickets.load('todo.json');">
-    Load from JSON
+  <button onclick="tickets.loadFromFile('tickets.json');">
+    Load from file
   </button>
   <table id="TicketsTable">
     <thead>
