@@ -1,4 +1,6 @@
-// TODO contenteditable
+// TODO редактировать - contenteditable
+// TODO удалять
+// TODO сохранения LocalStorage
 // TODO feature-test HTML5 d&d
 // TODO feature-test localStorage
 
@@ -6,7 +8,7 @@
  * Карточка задачи.
  */
 var Ticket = Class.create({
-  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}</span> <span>#{name}</span></div>'),
+  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}</span> <span contenteditable="true">#{name}</span></div>'),
 
   initialize: function(id, name, type) {
     this.id = id;
@@ -35,20 +37,12 @@ Object.extend(Ticket, {
 });
 
 /**
- * Возможны две реализации:
- *
- * 1. Три коллекции (под одной на состояния todo, in progress, done). Изменение состояния реализуется
- *    перемещением соответствующего Ticket из одной коллекции в другую.
- *
- * 2. Одна коллекция. Состояние запоминается в дополнительном поле каждого объекта Ticket.
+ * Список задач.
  */
 var Tickets = Class.create({
   prebind: ["onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
 
   states: ["todo", "inprogress", "done"],
-  /*todo: [],
-   inprogress: [],
-   done: [],*/
 
   initialize: function(containerId) {
     this.containerId = containerId;
@@ -156,7 +150,8 @@ var Tickets = Class.create({
   loadFromJSON: function(json) {
     this.states.each(function(state) {
       var stateContainer = this.containerForState(state).update();
-      json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
+      //json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
+      json[state].each(this.createTicket.curry(stateContainer));
     }, this);
   },
 
@@ -181,5 +176,21 @@ var Tickets = Class.create({
     return this.states.find(function(state) {
       return stateContainer.hasClassName(state);
     });
+  },
+
+  createTicket: function(stateContainer, data) {
+    Element.insert(stateContainer, Ticket.fromJSON(data));
+  },
+
+  createTicketFromForm: function(form) {
+    // TODO валидация данных: обязательность полей, уникальность идентификатора
+    form = $(form);
+    var data = form.serialize(true);
+    if (!data.id || !data.name) {
+      return;
+    }
+    console.log("createTicketFromForm", data);
+    this.createTicket(this.containerForState("todo"), data);
+    form.reset();
   }
 });
