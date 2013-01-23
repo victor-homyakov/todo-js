@@ -44,7 +44,7 @@ html, body {
   border-style: dotted;
   border-width: 0 0 0 2px;
   /* внизу пустое место, чтобы было, куда перетащить ticket */
-  padding: 0 5px 5em;
+  padding: 0 5px 2em;
   vertical-align: top;
 }
 
