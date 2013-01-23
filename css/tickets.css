@@ -63,8 +63,14 @@ html, body {
   user-select: none;
 }
 
-/*
- [contenteditable]:hover:not(:focus) {
- outline: 1px dotted #ccc;
- }
- */
+[contenteditable] {
+  cursor: text;
+}
+
+[contenteditable]:hover:not(:focus) {
+  outline: 1px dotted #444;
+}
+
+#NewTicket {
+  margin-bottom: 1em;
+}
