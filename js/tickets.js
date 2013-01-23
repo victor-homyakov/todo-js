@@ -44,7 +44,7 @@ Object.extend(Ticket, {
  * Список задач.
  */
 var Tickets = Class.create({
-  prebind: ["onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
+  prebind: ["onDomLoaded", "onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
 
   states: ["todo", "inprogress", "done"],
 
@@ -52,10 +52,15 @@ var Tickets = Class.create({
     this.containerId = containerId;
     this.storageKey = "tickets-" + containerId;
     if (document.loaded) {
-      this.observe();
+      this.onDomLoaded();
     } else {
-      document.observe("dom:loaded", this.observe.bind(this));
+      document.observe("dom:loaded", this.onDomLoaded);
     }
+  },
+
+  onDomLoaded: function() {
+    this.observe();
+    this.loadFromLocalStorage() || this.loadFromFile("tickets.json");
   },
 
   observe: function() {
@@ -140,7 +145,6 @@ var Tickets = Class.create({
   },
 
   onLoadSuccess: function(response) {
-    //console.log(response.responseJSON);
     this.loadFromJSON(response.responseJSON);
   },
 
@@ -152,13 +156,15 @@ var Tickets = Class.create({
     console.log("Exception in load()", exception.message, exception);
   },
 
-  loadFromJSON: function(json) {
+  loadFromJSON: function(json, doNotSave) {
     this.states.each(function(state) {
       var stateContainer = this.containerForState(state).update();
       //json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
       json[state].each(this.createTicket.curry(stateContainer));
     }, this);
-    this.saveToLocalStorage();
+    if (!doNotSave) {
+      this.saveToLocalStorage();
+    }
   },
 
   changeState: function(element, fromContainer, toContainer) {
@@ -168,8 +174,7 @@ var Tickets = Class.create({
     if (fromContainer === toContainer) {
       return;
     }
-    console.log("changeState", element, fromContainer, toContainer);
-    //element.remove();
+    //console.log("changeState", element, fromContainer, toContainer);
     toContainer.insert(element);
     this.saveToLocalStorage();
   },
@@ -196,7 +201,7 @@ var Tickets = Class.create({
     if (!data.id || !data.name) {
       return;
     }
-    console.log("createTicketFromForm", data);
+    //console.log("createTicketFromForm", data);
     this.createTicket(this.containerForState("todo"), data);
     form.reset();
     this.saveToLocalStorage();
@@ -208,7 +213,15 @@ var Tickets = Class.create({
     this.states.each(function(state) {
       data[state] = this.containerForState(state).select(".ticket").map(Ticket.fromElement);
     }, this);
-    //console.log(Object.toJSON(data));
     localStorage.setItem(this.storageKey, Object.toJSON(data));
+  },
+
+  loadFromLocalStorage: function() {
+    var jsonText = localStorage.getItem(this.storageKey);
+    if (!jsonText) {
+      return false;
+    }
+    this.loadFromJSON(jsonText.evalJSON(), true);
+    return true;
   }
 });
