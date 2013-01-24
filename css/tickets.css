@@ -5,21 +5,27 @@ html, body {
 }
 
 .ticket {
-  border: 2px solid #444;
+  background-position: center;
+  border: 0;
+  /*border: 1px dotted #ddd;*/
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  margin: 5px 0;
-  /*min-width: 100px;*/
-  padding: 5px;
-  width: 100%;
+  float: left;
+  height: 185px;
+  margin: 4px;
+  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 2px 4px;
+  width: 140px;
 }
 
 .task {
-  background-color: #cee2f2;
+  background-image: url("../img/file-task.png");
 }
 
 .bug {
-  background-color: #f4cac8;
+  background-image: url("../img/file-bug.png");
 }
 
 #TicketsTable {
@@ -32,19 +38,19 @@ html, body {
 
 #TicketsTable th {
   background-color: transparent;
-  border-color: #444;
+  border-color: #999;
   border-style: dotted;
-  border-width: 0 0 2px 2px;
+  border-width: 0 0 1px 1px;
   width: 30%;
 }
 
 /*#TicketsTable td*/
 .tickets {
-  border-color: #444;
+  border-color: #999;
   border-style: dotted;
-  border-width: 0 0 0 2px;
-  /* внизу пустое место, чтобы было, куда перетащить ticket */
-  padding: 0 5px 2em;
+  border-width: 0 0 0 1px;
+  /* padding-bottom: 2em is a placeholder to drag new tickets */
+  padding: 0 4px 2em;
   vertical-align: top;
 }
 
@@ -63,7 +69,7 @@ html, body {
   user-select: none;
 }
 
-/* Fix for Chrome [draggable] > [contenteditable] */
+/* Workaround for [draggable]>[contenteditable] bug in Chrome */
 .draggable-disabled {
   cursor: move;
 }
@@ -78,4 +84,10 @@ outline: 1px dotted #444;
 
 #NewTicket {
   margin-bottom: 1em;
+}
+
+#Trash {
+  background-image: url("../img/trash-empty.png");
+  height: 128px;
+  width: 128px;
 }
