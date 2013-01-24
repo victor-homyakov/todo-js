@@ -1,6 +1,3 @@
-// TODO удалять
-// TODO feature-test HTML5 d&d
-
 /**
  * Карточка задачи.
  */
@@ -78,6 +75,7 @@ var Tickets = Class.create({
       });
     }
 
+    // TODO feature-test HTML5 d&d
     this.eventHandlers.onDragStart = document.on("dragstart", ".ticket", function(event, element) {
       //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
