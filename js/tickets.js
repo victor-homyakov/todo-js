@@ -6,7 +6,7 @@
  * Карточка задачи.
  */
 var Ticket = Class.create({
-  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}</span> <span contenteditable="true">#{name}</span></div>'),
+  template: new Template('<div class="ticket #{type}" draggable="true"><span>#{id}<\/span> <span contenteditable="true">#{name}<\/span><\/div>'),
 
   initialize: function(id, name, type) {
     this.id = id;
@@ -63,7 +63,7 @@ var Tickets = Class.create({
   },
 
   observe: function() {
-    if ( typeof (new Element("div")).dragDrop === "function") {
+    if (typeof (new Element("div")).dragDrop === "function") {
       // Allow to drag any element in IE, not only A and IMG
       document.on("selectstart", ".ticket", function(event, element) {
         event.stop();
@@ -143,7 +143,7 @@ var Tickets = Class.create({
    * Загрузка из файла JSON.
    *
    * @param {String} name
-   * @param {Object} options
+   * @param {Object} [options]
    */
   loadFromFile: function(name, options) {
     options = Object.extend({
