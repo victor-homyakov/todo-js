@@ -83,7 +83,7 @@
 
       testLoadFromFile: function() {
         this.assertFunction(tickets.loadFromFile);
-        tickets.loadFromFile("tickets.json");
+        tickets.loadFromFile();
         this.wait(1000, function() {
           this.assertEqual(2, $$(".todo .ticket").length);
           this.assertEqual(1, $$(".inprogress .ticket").length);

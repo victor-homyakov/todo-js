@@ -49,8 +49,9 @@ var Tickets = Class.create({
 
   states: ["todo", "inprogress", "done"],
 
-  initialize: function(containerId) {
+  initialize: function(containerId, defaultJsonFile) {
     this.containerId = containerId;
+    this.defaultJsonFile = defaultJsonFile || "tickets.json";
     this.storageKey = "tickets-" + containerId;
     this.eventHandlers = {};
     if (document.loaded) {
@@ -62,7 +63,7 @@ var Tickets = Class.create({
 
   onDomLoaded: function() {
     this.observe();
-    this.loadFromLocalStorage() || this.loadFromFile("tickets.json");
+    this.loadFromLocalStorage() || this.loadFromFile();
   },
 
   observe: function() {
@@ -190,7 +191,7 @@ var Tickets = Class.create({
       onComplete: this.onLoadComplete,
       onException: this.onLoadException
     }, options || {});
-    new Ajax.Request(name, options);
+    new Ajax.Request(name || this.defaultJsonFile, options);
   },
 
   onLoadCreate: function() {
