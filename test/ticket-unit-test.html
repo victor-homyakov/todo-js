@@ -52,7 +52,18 @@
       testToHTML: function() {
         var ticket = new Ticket("#78", "ticket name");
         this.assertFunction(ticket.toHTML);
-        this.assertEqual('<div class="ticket task" draggable="true"><span>#78<\/span> <span>ticket name<\/span><\/div>', ticket.toHTML());
+        this.assertEqual('<div class="ticket task" draggable="true"><div>#78<\/div><div contenteditable="true">ticket name<\/div><\/div>', ticket.toHTML());
+      },
+
+      testFromJSON: function() {
+        this.assertFunction(Ticket.fromJSON);
+        var ticket = Ticket.fromJSON({
+          id: "#78",
+          name: "ticket name"
+        });
+        this.assertEqual("#78", ticket.id);
+        this.assertEqual("ticket name", ticket.name);
+        this.assertEqual("task", ticket.type);
       }
     });
   </script>

@@ -52,6 +52,7 @@ var Tickets = Class.create({
   initialize: function(containerId) {
     this.containerId = containerId;
     this.storageKey = "tickets-" + containerId;
+    this.eventHandlers = {};
     if (document.loaded) {
       this.onDomLoaded();
     } else {
@@ -69,32 +70,33 @@ var Tickets = Class.create({
 
     if ( typeof (new Element("div")).dragDrop === "function") {
       // Allow to drag any element in IE, not only A and IMG
-      document.on("selectstart", ".ticket", function(event, element) {
+      this.eventHandlers.onSelectStart = document.on("selectstart", ".ticket", function(event, element) {
         event.stop();
         //console.log("selectstart", event, element);
         element.dragDrop();
       });
     }
 
-    this.onDragStart = document.on("dragstart", ".ticket", function(event, element) {
+    this.eventHandlers.onDragStart = document.on("dragstart", ".ticket", function(event, element) {
       //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
       event.dataTransfer.setData("Text", element.identify());
     });
 
-    this.onDragOver = document.on("dragover", ".tickets", function(event, element) {
+    this.eventHandlers.onDragOver = document.on("dragover", ".tickets", function(event, element) {
       //console.log("dragover", event, element);
       event.stop();
       //element.addClassName("over");
       //event.dataTransfer.dropEffect = "copy";
     });
 
-    this.onDragEnter = document.on("dragenter", ".tickets", function(event, element) {
+    this.eventHandlers.onDragEnter = document.on("dragenter", ".tickets", function(event, element) {
       //console.log("dragenter", event, element);
       event.stop();
       event.dataTransfer.dropEffect = "copy";
       //element.addClassName("over");
       // TODO replace highlight with CSS3 transition
+      // this will also eliminate check for element.id !== "Trash"
       if (element.id !== "Trash") {
         element.highlight({
           queue: {
@@ -105,11 +107,11 @@ var Tickets = Class.create({
       }
     });
 
-    //this.onDragLeave = document.on("dragleave", ".tickets", function(event, element) {
+    //this.eventHandlers.onDragLeave = document.on("dragleave", ".tickets", function(event, element) {
     //element.removeClassName("over");
     //});
 
-    this.onDrop = document.on("drop", ".tickets", function(event, element) {
+    this.eventHandlers.onDrop = document.on("drop", ".tickets", function(event, element) {
       event.stop();
       var id = event.dataTransfer.getData("Text");
       var previousContainer = $(id).up(".tickets");
@@ -127,7 +129,7 @@ var Tickets = Class.create({
        if (e) {e.attr("draggable", false);}
        }
        }, true);*/
-      this.onEditableFocusWebKit = document.on("focusin", "[contenteditable]", function(event, element) {
+      this.eventHandlers.onEditableFocusWebKit = document.on("focusin", "[contenteditable]", function(event, element) {
         var e = element.up("[draggable]");
         if (e) {
           e/*.attr("draggable", false)*/.addClassName("draggable-disabled").removeAttribute("draggable");
@@ -135,7 +137,7 @@ var Tickets = Class.create({
         //console.log("focusin", element, e);
       });
 
-      this.onEditableBlurWebKit = document.on("focusout", "[contenteditable]", function(event, element) {
+      this.eventHandlers.onEditableBlurWebKit = document.on("focusout", "[contenteditable]", function(event, element) {
         var e = element.up(".draggable-disabled");
         if (e) {
           e/*.attr("draggable", true)*/.removeClassName("draggable-disabled").setAttribute("draggable", true);
@@ -145,7 +147,7 @@ var Tickets = Class.create({
     }
 
     // TODO periodical save while editing
-    this.onEditableBlur = document.on("focus:out", "[contenteditable]", function(event, element) {
+    this.eventHandlers.onEditableBlur = document.on("focus:out", "[contenteditable]", function(event, element) {
       var e = element.up("[draggable],.draggable-disabled");
       if (e) {
         var name = element.innerText || element.textContent;
@@ -160,13 +162,14 @@ var Tickets = Class.create({
   },
 
   stopObserving: function() {
-    $w("onDragStart onDragOver onDragEnter onDrop onEditableFocusWebKit onEditableBlurWebKit onEditableBlur").each(function(name) {
-      //console.log(name, this[name]);
-      if (this[name]) {
-        this[name].stop();
-        this[name] = null;
+    var handlers = this.eventHandlers;
+    for (var name in handlers) {
+      if (handlers[name]) {
+        //console.log(name, handlers[name]);
+        handlers[name].stop();
+        handlers[name] = null;
       }
-    }, this);
+    }
   },
 
   /**
@@ -205,13 +208,17 @@ var Tickets = Class.create({
   },
 
   onLoadException: function(request, exception) {
-    console.log("Exception in loadFromFile():", exception.message, exception);
+    var message = "Exception in loadFromFile(): " + exception.message;
+    if (window.console && window.console.log) {
+      console.log(message, exception);
+    } else {
+      alert(message);
+    }
   },
 
   loadFromJSON: function(json, doNotSave) {
     this.states.each(function(state) {
       var stateContainer = this.containerForState(state).update();
-      //json[state].map(Ticket.fromJSON).each(Element.insert.curry(stateContainer));
       json[state].each(this.createTicket.curry(stateContainer));
     }, this);
     if (!doNotSave) {
