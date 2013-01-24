@@ -148,6 +148,10 @@ var Tickets = Class.create({
   loadFromFile: function(name, options) {
     options = Object.extend({
       method: "get",
+      requestHeaders: {
+        "X-Requested-With": null,
+        "X-Prototype-Version" : null
+      },
       onCreate: this.onLoadCreate,
       onSuccess: this.onLoadSuccess,
       onComplete: this.onLoadComplete,
@@ -169,7 +173,7 @@ var Tickets = Class.create({
   },
 
   onLoadException: function(request, exception) {
-    console.log("Exception in load()", exception.message, exception);
+    console.log("Exception in loadFromFile():", exception.message, exception);
   },
 
   loadFromJSON: function(json, doNotSave) {
