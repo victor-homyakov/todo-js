@@ -95,12 +95,14 @@ var Tickets = Class.create({
       event.dataTransfer.dropEffect = "copy";
       //element.addClassName("over");
       // TODO replace highlight with CSS3 transition
-      element.highlight({
-        queue: {
-          scope: "tickets-highlight " + element.className,
-          limit: 1
-        }
-      });
+      if (element.id !== "Trash") {
+        element.highlight({
+          queue: {
+            scope: "tickets-highlight " + element.className,
+            limit: 1
+          }
+        });
+      }
     });
 
     //this.onDragLeave = document.on("dragleave", ".tickets", function(event, element) {

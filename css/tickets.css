@@ -45,7 +45,7 @@ html, body {
 }
 
 /*#TicketsTable td*/
-.tickets {
+#TicketsTable .tickets {
   border-color: #999;
   border-style: dotted;
   border-width: 0 0 0 1px;
@@ -54,7 +54,7 @@ html, body {
   vertical-align: top;
 }
 
-#TicketsTable th:first-child, .tickets:first-child {
+#TicketsTable th:first-child, #TicketsTable .tickets:first-child {
   border-left: 0;
 }
 
@@ -90,4 +90,8 @@ outline: 1px dotted #444;
   background-image: url("../img/trash-empty.png");
   height: 128px;
   width: 128px;
+}
+
+#Trash .ticket {
+  display: none;
 }
