@@ -1,4 +1,4 @@
-// TODO редактировать - contenteditable
+// TODO редактировать - contenteditable - save
 // TODO удалять
 // TODO feature-test HTML5 d&d
 
@@ -41,6 +41,9 @@ Object.extend(Ticket, {
 
 /**
  * Список задач.
+ *
+ * HTML5 Drag&Drop на текущий момент имеет определённые проблемы почти в каждом браузере:
+ * http://thinkjs.blogspot.com/2013/01/html5-draggable-contenteditable.html
  */
 var Tickets = Class.create({
   prebind: ["onDomLoaded", "onLoadCreate", "onLoadSuccess", "onLoadComplete", "onLoadException"],
@@ -63,7 +66,7 @@ var Tickets = Class.create({
   },
 
   observe: function() {
-    if (typeof (new Element("div")).dragDrop === "function") {
+    if ( typeof (new Element("div")).dragDrop === "function") {
       // Allow to drag any element in IE, not only A and IMG
       document.on("selectstart", ".ticket", function(event, element) {
         event.stop();
@@ -113,29 +116,40 @@ var Tickets = Class.create({
     }.bind(this));
     // FIXME use prebind
 
-    // http://stackoverflow.com/questions/6399131/html5-draggable-and-contenteditable-not-working-together/
-    // onfocus="this.parentNode.draggable = false;"
-    // onblur="this.parentNode.draggable = true;"
+    if (Prototype.Browser.WebKit) {
+      /*document.addEventListener("focus", function focusin(event) {
+       var element = Event.findElement(event);
+       if (element.attr("contenteditable")) {
+       var e = element.up("[draggable]");
+       if (e) {e.attr("draggable", false);}
+       }
+       }, true);*/
+      this.onEditableFocus = this.onEditableFocus || document.on("focusin", "[contenteditable]", function(event, element) {
+        var e = element.up("[draggable]");
+        if (e) {
+          e/*.attr("draggable", false)*/.addClassName("draggable-disabled").removeAttribute("draggable");
+        }
+        //console.log("focusin", element, e);
+      });
 
-    /*
-    document.on("focusin", "[contenteditable]", function(event, element) {
-      console.log("focusin", element);
-      //document.designMode = "on";
-    });
-
-    document.on("focusout", "[contenteditable]", function(event, element) {
-      console.log("focusout", element);
-      // TODO save
-      //document.designMode = "off";
-    });
-    */
+      this.onEditableBlur = this.onEditableBlur || document.on("focusout", "[contenteditable]", function(event, element) {
+        var e = element.up(".draggable-disabled");
+        if (e) {
+          e/*.attr("draggable", true)*/.removeClassName("draggable-disabled").setAttribute("draggable", true);
+        }
+        //console.log("focusout", element, e);
+        // TODO save
+      });
+    }
   },
 
   stopObserving: function() {
-    $w("onDragStart onDragOver onDragEnter onDrop").each(function(name) {
+    $w("onDragStart onDragOver onDragEnter onDrop onEditableFocus onEditableBlur").each(function(name) {
       //console.log(name, this[name]);
-      this[name].stop();
-      this[name] = null;
+      if (this[name]) {
+        this[name].stop();
+        this[name] = null;
+      }
     }, this);
   },
 
@@ -150,7 +164,7 @@ var Tickets = Class.create({
       method: "get",
       requestHeaders: {
         "X-Requested-With": null,
-        "X-Prototype-Version" : null
+        "X-Prototype-Version": null
       },
       onCreate: this.onLoadCreate,
       onSuccess: this.onLoadSuccess,
@@ -166,7 +180,7 @@ var Tickets = Class.create({
 
   onLoadSuccess: function(response) {
     // TODO maybe explicit fromJSON() for non-json response types
-    // when json is sent as test/plain etc.
+    // when json is sent as text/plain etc.
     this.loadFromJSON(response.responseJSON);
   },
 

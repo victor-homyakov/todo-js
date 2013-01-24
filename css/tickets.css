@@ -63,12 +63,17 @@ html, body {
   user-select: none;
 }
 
+/* Fix for Chrome [draggable] > [contenteditable] */
+.draggable-disabled {
+  cursor: move;
+}
+
 [contenteditable] {
   cursor: text;
 }
 
 [contenteditable]:hover:not(:focus) {
-  outline: 1px dotted #444;
+outline: 1px dotted #444;
 }
 
 #NewTicket {
