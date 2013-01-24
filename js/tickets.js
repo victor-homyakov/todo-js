@@ -165,6 +165,8 @@ var Tickets = Class.create({
   },
 
   onLoadSuccess: function(response) {
+    // TODO maybe explicit fromJSON() for non-json response types
+    // when json is sent as test/plain etc.
     this.loadFromJSON(response.responseJSON);
   },
 
