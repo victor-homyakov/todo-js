@@ -186,6 +186,8 @@ var Tickets = Class.create({
         "X-Requested-With": null,
         "X-Prototype-Version": null
       },
+      // from local file:// in Firefox JSON is sent as text/plain
+      evalJSON: "force",
       onCreate: this.onLoadCreate,
       onSuccess: this.onLoadSuccess,
       onComplete: this.onLoadComplete,
@@ -199,8 +201,6 @@ var Tickets = Class.create({
   },
 
   onLoadSuccess: function(response) {
-    // TODO maybe explicit fromJSON() for non-json response types
-    // when json is sent as text/plain etc.
     this.loadFromJSON(response.responseJSON);
   },
 
