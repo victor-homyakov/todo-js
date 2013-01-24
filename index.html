@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Tickets - functional test</title>
+  <link rel="stylesheet" href="css/tickets.css" type="text/css" />
+  <script type="text/javascript" src="lib/proto-scripty.js"></script>
+  <script type="text/javascript" src="js/tickets.js"></script>
+  <script type="text/javascript">
+    var tickets = new Tickets("TicketsTable", "js/tickets.json");
+  </script>
+</head>
+<body>
+  <input type="button" value="Load from file" onclick="tickets.loadFromFile();" />
+  <input type="button" value="Load from local storage" onclick="tickets.loadFromLocalStorage();" />
+  <input type="button" value="Save to local storage" onclick="tickets.saveToLocalStorage();" />
+  <input type="button" value="Clear local storage" onclick="localStorage.clear(); window.location = window.location;" />
+
+  <form id="NewTicket">
+    <fieldset>
+      <legend>
+        Create new ticket
+      </legend>
+      <label>
+        <input type="radio" name="type" value="bug" checked="checked" />
+        Bug</label>
+      <label>
+        <input type="radio" name="type" value="task" />
+        Task</label>
+      <input type="text" name="id" placeholder="Id" size="5" />
+      <input type="text" name="name" placeholder="Name" />
+      <input type="button" value="Create" onclick="tickets.createTicketFromForm('NewTicket');" />
+    </fieldset>
+  </form>
+  <table id="TicketsTable">
+    <thead>
+      <tr>
+        <th>ToDo</th>
+        <th>In Progress</th>
+        <th>Done</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="tickets todo"></td>
+        <td class="tickets inprogress"></td>
+        <td class="tickets done"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div id="Trash" class="tickets"></div>
+</body>
+</html>
