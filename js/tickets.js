@@ -4,7 +4,7 @@
 var Ticket = Class.create({
   template: new Template('<div class="ticket #{type}" draggable="true"><div>#{id}<\/div><div contenteditable="true">#{name}<\/div><\/div>'),
 
-  initialize: function(id, name, type) {
+  initialize: function (id, name, type) {
     this.id = id;
     this.name = name;
     this.type = (type == "bug") ? "bug" : "task";
@@ -14,11 +14,11 @@ var Ticket = Class.create({
    return "Ticket #{id} (#{type}): #{name}".interpolate(this);
    },*/
 
-  toElement: function() {
+  toElement: function () {
     return new Element("div").update(this.toHTML()).down().store(Ticket.STORAGE_KEY, this);
   },
 
-  toHTML: function() {
+  toHTML: function () {
     return this.template.evaluate(this);
   }
 });
@@ -26,11 +26,11 @@ var Ticket = Class.create({
 Object.extend(Ticket, {
   STORAGE_KEY: "ticket",
 
-  fromJSON: function(json) {
+  fromJSON: function (json) {
     return new Ticket(json.id, json.name, json.type);
   },
 
-  fromElement: function(element) {
+  fromElement: function (element) {
     return $(element).retrieve(Ticket.STORAGE_KEY);
   }
 });
@@ -46,7 +46,7 @@ var Tickets = Class.create({
 
   states: ["todo", "inprogress", "done"],
 
-  initialize: function(containerId, defaultJsonFile) {
+  initialize: function (containerId, defaultJsonFile) {
     this.containerId = containerId;
     this.defaultJsonFile = defaultJsonFile || "tickets.json";
     this.storageKey = "tickets-" + containerId;
@@ -58,17 +58,17 @@ var Tickets = Class.create({
     }
   },
 
-  onDomLoaded: function() {
+  onDomLoaded: function () {
     this.observe();
     this.loadFromLocalStorage() || this.loadFromFile();
   },
 
-  observe: function() {
+  observe: function () {
     this.stopObserving();
 
-    if ( typeof (new Element("div")).dragDrop === "function") {
+    if (typeof (new Element("div")).dragDrop === "function") {
       // Allow to drag any element in IE, not only A and IMG
-      this.eventHandlers.onSelectStart = document.on("selectstart", ".ticket", function(event, element) {
+      this.eventHandlers.onSelectStart = document.on("selectstart", ".ticket", function (event, element) {
         event.stop();
         //console.log("selectstart", event, element);
         element.dragDrop();
@@ -76,20 +76,20 @@ var Tickets = Class.create({
     }
 
     // TODO feature-test HTML5 d&d
-    this.eventHandlers.onDragStart = document.on("dragstart", ".ticket", function(event, element) {
+    this.eventHandlers.onDragStart = document.on("dragstart", ".ticket", function (event, element) {
       //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
       event.dataTransfer.setData("Text", element.identify());
     });
 
-    this.eventHandlers.onDragOver = document.on("dragover", ".tickets", function(event, element) {
+    this.eventHandlers.onDragOver = document.on("dragover", ".tickets", function (event, element) {
       //console.log("dragover", event, element);
       event.stop();
       //element.addClassName("over");
       //event.dataTransfer.dropEffect = "copy";
     });
 
-    this.eventHandlers.onDragEnter = document.on("dragenter", ".tickets", function(event, element) {
+    this.eventHandlers.onDragEnter = document.on("dragenter", ".tickets", function (event, element) {
       //console.log("dragenter", event, element);
       event.stop();
       event.dataTransfer.dropEffect = "copy";
@@ -110,7 +110,7 @@ var Tickets = Class.create({
     //element.removeClassName("over");
     //});
 
-    this.eventHandlers.onDrop = document.on("drop", ".tickets", function(event, element) {
+    this.eventHandlers.onDrop = document.on("drop", ".tickets", function (event, element) {
       event.stop();
       var id = event.dataTransfer.getData("Text");
       var previousContainer = $(id).up(".tickets");
@@ -128,7 +128,7 @@ var Tickets = Class.create({
        if (e) {e.attr("draggable", false);}
        }
        }, true);*/
-      this.eventHandlers.onEditableFocusWebKit = document.on("focusin", "[contenteditable]", function(event, element) {
+      this.eventHandlers.onEditableFocusWebKit = document.on("focusin", "[contenteditable]", function (event, element) {
         var e = element.up("[draggable]");
         if (e) {
           e/*.attr("draggable", false)*/.addClassName("draggable-disabled").removeAttribute("draggable");
@@ -136,7 +136,7 @@ var Tickets = Class.create({
         //console.log("focusin", element, e);
       });
 
-      this.eventHandlers.onEditableBlurWebKit = document.on("focusout", "[contenteditable]", function(event, element) {
+      this.eventHandlers.onEditableBlurWebKit = document.on("focusout", "[contenteditable]", function (event, element) {
         var e = element.up(".draggable-disabled");
         if (e) {
           e/*.attr("draggable", true)*/.removeClassName("draggable-disabled").setAttribute("draggable", true);
@@ -146,7 +146,7 @@ var Tickets = Class.create({
     }
 
     // TODO periodical save while editing
-    this.eventHandlers.onEditableBlur = document.on("focus:out", "[contenteditable]", function(event, element) {
+    this.eventHandlers.onEditableBlur = document.on("focus:out", "[contenteditable]", function (event, element) {
       var e = element.up("[draggable],.draggable-disabled");
       if (e) {
         var name = element.innerText || element.textContent;
@@ -160,7 +160,7 @@ var Tickets = Class.create({
     }.bind(this));
   },
 
-  stopObserving: function() {
+  stopObserving: function () {
     var handlers = this.eventHandlers;
     for (var name in handlers) {
       if (handlers[name]) {
@@ -174,10 +174,10 @@ var Tickets = Class.create({
   /**
    * Загрузка из файла JSON.
    *
-   * @param {String} name
-   * @param {Object} [options]
+   * @param {String} [name] - путь/имя файла, this.defaultJsonFile по умолчанию
+   * @param {Object} [options] - опции для Ajax.Request
    */
-  loadFromFile: function(name, options) {
+  loadFromFile: function (name, options) {
     options = Object.extend({
       method: "get",
       requestHeaders: {
@@ -194,19 +194,19 @@ var Tickets = Class.create({
     new Ajax.Request(name || this.defaultJsonFile, options);
   },
 
-  onLoadCreate: function() {
+  onLoadCreate: function () {
     $(this.containerId).addClassName("loading");
   },
 
-  onLoadSuccess: function(response) {
+  onLoadSuccess: function (response) {
     this.loadFromJSON(response.responseJSON);
   },
 
-  onLoadComplete: function(response) {
+  onLoadComplete: function (response) {
     $(this.containerId).removeClassName("loading");
   },
 
-  onLoadException: function(request, exception) {
+  onLoadException: function (request, exception) {
     var message = "Exception in loadFromFile(): " + exception.message;
     if (window.console && window.console.log) {
       console.log(message, exception);
@@ -215,8 +215,8 @@ var Tickets = Class.create({
     }
   },
 
-  loadFromJSON: function(json, doNotSave) {
-    this.states.each(function(state) {
+  loadFromJSON: function (json, doNotSave) {
+    this.states.each(function (state) {
       var stateContainer = this.containerForState(state).update();
       json[state].each(this.createTicket.curry(stateContainer));
     }, this);
@@ -225,7 +225,7 @@ var Tickets = Class.create({
     }
   },
 
-  changeState: function(element, fromContainer, toContainer) {
+  changeState: function (element, fromContainer, toContainer) {
     element = $(element);
     fromContainer = $(fromContainer);
     toContainer = $(toContainer);
@@ -237,22 +237,22 @@ var Tickets = Class.create({
     this.saveToLocalStorage();
   },
 
-  containerForState: function(state) {
+  containerForState: function (state) {
     return $(this.containerId).down("." + state);
   },
 
-  stateForContainer: function(stateContainer) {
+  stateForContainer: function (stateContainer) {
     stateContainer = $(stateContainer);
-    return this.states.find(function(state) {
+    return this.states.find(function (state) {
       return stateContainer.hasClassName(state);
     });
   },
 
-  createTicket: function(stateContainer, data) {
+  createTicket: function (stateContainer, data) {
     Element.insert(stateContainer, Ticket.fromJSON(data));
   },
 
-  createTicketFromForm: function(form) {
+  createTicketFromForm: function (form) {
     // TODO валидация данных: обязательность полей, уникальность идентификатора
     form = $(form);
     var data = form.serialize(true);
@@ -265,16 +265,16 @@ var Tickets = Class.create({
     this.saveToLocalStorage();
   },
 
-  saveToLocalStorage: function() {
+  saveToLocalStorage: function () {
     // TODO feature-test localStorage
     var data = {};
-    this.states.each(function(state) {
+    this.states.each(function (state) {
       data[state] = this.containerForState(state).select(".ticket").map(Ticket.fromElement);
     }, this);
     localStorage.setItem(this.storageKey, Object.toJSON(data));
   },
 
-  loadFromLocalStorage: function() {
+  loadFromLocalStorage: function () {
     var jsonText = localStorage.getItem(this.storageKey);
     if (!jsonText) {
       return false;
