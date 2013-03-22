@@ -1,41 +1,4 @@
 /**
- * Карточка задачи.
- */
-var Ticket = Class.create({
-  template: new Template('<div class="ticket #{type}" draggable="true"><div>#{id}<\/div><div contenteditable="true">#{name}<\/div><\/div>'),
-
-  initialize: function (id, name, type) {
-    this.id = id;
-    this.name = name;
-    this.type = (type == "bug") ? "bug" : "task";
-  },
-
-  /*toString: function() {
-   return "Ticket #{id} (#{type}): #{name}".interpolate(this);
-   },*/
-
-  toElement: function () {
-    return new Element("div").update(this.toHTML()).down().store(Ticket.STORAGE_KEY, this);
-  },
-
-  toHTML: function () {
-    return this.template.evaluate(this);
-  }
-});
-
-Object.extend(Ticket, {
-  STORAGE_KEY: "ticket",
-
-  fromJSON: function (json) {
-    return new Ticket(json.id, json.name, json.type);
-  },
-
-  fromElement: function (element) {
-    return $(element).retrieve(Ticket.STORAGE_KEY);
-  }
-});
-
-/**
  * Список задач.
  *
  * HTML5 Drag&Drop на текущий момент имеет определённые проблемы почти в каждом браузере:
@@ -70,27 +33,23 @@ var Tickets = Class.create({
       // Allow to drag any element in IE, not only A and IMG
       this.eventHandlers.onSelectStart = document.on("selectstart", ".ticket", function (event, element) {
         event.stop();
-        //console.log("selectstart", event, element);
         element.dragDrop();
       });
     }
 
     // TODO feature-test HTML5 d&d
     this.eventHandlers.onDragStart = document.on("dragstart", ".ticket", function (event, element) {
-      //console.log("dragstart", event, element);
       event.dataTransfer.effectAllowed = "copy";
       event.dataTransfer.setData("Text", element.identify());
     });
 
     this.eventHandlers.onDragOver = document.on("dragover", ".tickets", function (event, element) {
-      //console.log("dragover", event, element);
       event.stop();
       //element.addClassName("over");
       //event.dataTransfer.dropEffect = "copy";
     });
 
     this.eventHandlers.onDragEnter = document.on("dragenter", ".tickets", function (event, element) {
-      //console.log("dragenter", event, element);
       event.stop();
       event.dataTransfer.dropEffect = "copy";
       //element.addClassName("over");
@@ -114,7 +73,6 @@ var Tickets = Class.create({
       event.stop();
       var id = event.dataTransfer.getData("Text");
       var previousContainer = $(id).up(".tickets");
-      //console.log("drop", id, "from", previousContainer, "to", element);
       this.changeState(id, previousContainer, element);
       //element.removeClassName("over");
     }.bind(this));
@@ -133,7 +91,6 @@ var Tickets = Class.create({
         if (e) {
           e/*.attr("draggable", false)*/.addClassName("draggable-disabled").removeAttribute("draggable");
         }
-        //console.log("focusin", element, e);
       });
 
       this.eventHandlers.onEditableBlurWebKit = document.on("focusout", "[contenteditable]", function (event, element) {
@@ -141,7 +98,6 @@ var Tickets = Class.create({
         if (e) {
           e/*.attr("draggable", true)*/.removeClassName("draggable-disabled").setAttribute("draggable", true);
         }
-        //console.log("focusout", element, e);
       });
     }
 
@@ -152,7 +108,7 @@ var Tickets = Class.create({
         var name = element.innerText || element.textContent;
         var ticket = Ticket.fromElement(e);
         if (ticket.name !== name) {
-          console.log("save", name);
+          //console.log("save", name);
           ticket.name = name;
           this.saveToLocalStorage();
         }
@@ -164,7 +120,6 @@ var Tickets = Class.create({
     var handlers = this.eventHandlers;
     for (var name in handlers) {
       if (handlers[name]) {
-        //console.log(name, handlers[name]);
         handlers[name].stop();
         handlers[name] = null;
       }
@@ -229,12 +184,10 @@ var Tickets = Class.create({
     element = $(element);
     fromContainer = $(fromContainer);
     toContainer = $(toContainer);
-    if (fromContainer === toContainer) {
-      return;
+    if (fromContainer !== toContainer) {
+      toContainer.insert(element);
+      this.saveToLocalStorage();
     }
-    //console.log("changeState", element, fromContainer, toContainer);
-    toContainer.insert(element);
-    this.saveToLocalStorage();
   },
 
   containerForState: function (state) {
@@ -259,7 +212,6 @@ var Tickets = Class.create({
     if (!data.id || !data.name) {
       return;
     }
-    //console.log("createTicketFromForm", data);
     this.createTicket(this.containerForState("todo"), data);
     form.reset();
     this.saveToLocalStorage();
